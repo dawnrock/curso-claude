@@ -46,7 +46,7 @@ Cada tarea debe poder hacerse en **5-10 minutos**. Reglas para conseguirlo:
 
 ### 5. Escribir el plan
 
-- Rellena la plantilla [template.md](template.md) respetando su estructura y sus secciones. Elimina los comentarios de ayuda (`<!-- ... -->`) en el resultado.
+- Rellena la plantilla [template.md](assets/template.md) respetando su estructura y sus secciones. Elimina los comentarios de ayuda (`<!-- ... -->`) en el resultado.
 - Guarda el plan en `docs/plans/AAAA-MM-DD-<slug>.md` (fecha de hoy, slug corto en kebab-case en inglés, por ejemplo `docs/plans/2026-10-19-paginate-vendehumos.md`).
 - El plan se redacta en español; los nombres de archivos, clases, métodos y fragmentos de código, en inglés.
 

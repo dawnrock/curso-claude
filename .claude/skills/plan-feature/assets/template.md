@@ -29,7 +29,7 @@
 
 ### [ ] T1 — <título> (~5 min)
 
-- **Capa:** models | repositories | services | controllers | routes | tests | config
+- **Capa:** models | repositories | services | controllers | routes | tests | config | docs
 - **Archivos:** `src/...`
 - **Depende de:** —
 - **Qué hacer:**
@@ -64,6 +64,7 @@
 - [ ] Los errores se lanzan como `HttpError` en los services y se reenvían con `next(err)` en los controllers.
 - [ ] No se añaden dependencias externas (o se justifica por qué no hay alternativa nativa).
 - [ ] Los tests (`node --test`) pasan, si existen.
+- [ ] Si se toca la API: `docs/api/openapi.yaml` refleja los cambios y `npm run docs:api` termina sin errores (si no se toca, "no aplica").
 
 ## Riesgos y preguntas abiertas
 

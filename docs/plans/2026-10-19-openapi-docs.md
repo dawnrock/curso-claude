@@ -206,7 +206,7 @@ Decisiones técnicas:
   - [x] Al planificar en una sesión nueva una feature de prueba (p. ej. "añadir `DELETE /restaurants/{id}`"), el plan generado incluye la tarea de actualizar el `openapi.yaml` (se descarta después).
 - **Notas:** verificado con un subagente sin contexto previo: para "añadir `DELETE /api/v1/restaurants/{id}`" generó una tarea T8 de capa `docs` (`docs/api/openapi.yaml`, `docs/api/index.html`, `npm run docs:api`) justo después de la tarea de `routes`. El plan de prueba quedó en el scratchpad y no se ha guardado en el repo.
 
-### [ ] T11 — EXTRA: plantilla del plan (~5 min)
+### [x] T11 — EXTRA: plantilla del plan (~5 min)
 
 - **Capa:** config
 - **Archivos:** `.claude/skills/plan-feature/assets/template.md`
@@ -215,7 +215,8 @@ Decisiones técnicas:
   1. Añadir `docs` a la lista de capas posibles de cada tarea.
   2. Añadir a los criterios globales fijos: "Si se toca la API: `docs/api/openapi.yaml` refleja los cambios y `npm run docs:api` termina sin errores".
 - **Criterios de aceptación:**
-  - [ ] La plantilla contiene la capa `docs` y el nuevo criterio fijo.
+  - [x] La plantilla contiene la capa `docs` y el nuevo criterio fijo.
+- **Notas:** fuera del plan, se corrige también en `SKILL.md` el enlace a la plantilla (`template.md` → `assets/template.md`), que estaba roto; lo detectó el subagente de la verificación de T10.
 
 ## Criterios de aceptación globales
 
