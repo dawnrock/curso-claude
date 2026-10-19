@@ -115,7 +115,7 @@ Decisiones técnicas:
   - [x] `npm run docs:api:lint` sin errores.
   - [x] Las 6 operaciones de restaurante aparecen con sus códigos (201/200/400/401/403/404 según aplique).
 
-### [ ] T4 — Empleados (~10 min)
+### [x] T4 — Empleados (~10 min)
 
 - **Capa:** docs
 - **Archivos:** `docs/api/openapi.yaml`
@@ -125,8 +125,8 @@ Decisiones técnicas:
   2. Añadir esquemas `Employee` y `CreateEmployeeRequest`.
   3. Documentar `POST`/`GET /api/v1/employees` (query `limit` por defecto 10, `offset` 0, `role` opcional), `GET /api/v1/employees/{id}` y `GET /api/v1/restaurants/{restaurantId}/employees`, todas solo `admin`.
 - **Criterios de aceptación:**
-  - [ ] `npm run docs:api:lint` sin errores.
-  - [ ] `GET /api/v1/employees` documenta los 3 parámetros de query con su valor por defecto.
+  - [x] `npm run docs:api:lint` sin errores.
+  - [x] `GET /api/v1/employees` documenta los 3 parámetros de query con su valor por defecto.
 
 ### [ ] T5 — Platos (privados y públicos) (~10 min)
 
