@@ -192,7 +192,7 @@ Decisiones técnicas:
 - **Criterios de aceptación:**
   - [x] Ambos archivos enlazan a `docs/api/openapi.yaml` con ruta relativa válida.
 
-### [ ] T10 — EXTRA: regla OpenAPI en la skill `plan-feature` (~10 min)
+### [x] T10 — EXTRA: regla OpenAPI en la skill `plan-feature` (~10 min)
 
 - **Capa:** config
 - **Archivos:** `.claude/skills/plan-feature/SKILL.md`
@@ -202,8 +202,9 @@ Decisiones técnicas:
   2. En el paso 3 (Desglosar en tareas), añadir: si toca la API, incluir siempre una tarea de capa `docs` justo después de la de `routes`/`controllers` que actualice `docs/api/openapi.yaml` y ejecute `npm run docs:api` (nunca editar `index.html` a mano).
   3. En el paso 4, añadir que ese caso exige el criterio global de OpenAPI de la plantilla.
 - **Criterios de aceptación:**
-  - [ ] `SKILL.md` contiene la regla en los pasos 2, 3 y 4, nombrando `docs/api/openapi.yaml` y `npm run docs:api`.
-  - [ ] Al planificar en una sesión nueva una feature de prueba (p. ej. "añadir `DELETE /restaurants/{id}`"), el plan generado incluye la tarea de actualizar el `openapi.yaml` (se descarta después).
+  - [x] `SKILL.md` contiene la regla en los pasos 2, 3 y 4, nombrando `docs/api/openapi.yaml` y `npm run docs:api`.
+  - [x] Al planificar en una sesión nueva una feature de prueba (p. ej. "añadir `DELETE /restaurants/{id}`"), el plan generado incluye la tarea de actualizar el `openapi.yaml` (se descarta después).
+- **Notas:** verificado con un subagente sin contexto previo: para "añadir `DELETE /api/v1/restaurants/{id}`" generó una tarea T8 de capa `docs` (`docs/api/openapi.yaml`, `docs/api/index.html`, `npm run docs:api`) justo después de la tarea de `routes`. El plan de prueba quedó en el scratchpad y no se ha guardado en el repo.
 
 ### [ ] T11 — EXTRA: plantilla del plan (~5 min)
 

@@ -21,6 +21,7 @@ Petición del usuario: $ARGUMENTS
 - Relee las convenciones de `CLAUDE.md`: capas `routes → controllers → services → repositories → models`, clases con métodos en `snake_case`, errores con `HttpError`, solo dependencias nativas de Node salvo `express`.
 - Localiza los archivos afectados y léelos. Para un `fix`, identifica la causa probable y dónde se manifiesta.
 - Si el trabajo toca algo documentado en `docs/` (por ejemplo paginación → `docs/api/api-pagination.md`), léelo y aplica esa convención en el plan.
+- Determina si el trabajo **toca la API**: añade, quita o cambia rutas, roles (`authorize()`), cuerpos de petición o respuesta, parámetros de ruta o query, códigos de estado o errores que mapea `errorHandler`. Si es así, lee `docs/api/openapi.yaml` (el contrato de la API) y localiza las operaciones y esquemas afectados.
 
 ### 3. Desglosar en tareas
 
@@ -32,11 +33,15 @@ Cada tarea debe poder hacerse en **5-10 minutos**. Reglas para conseguirlo:
 - Ordena las tareas de abajo arriba siguiendo las capas (models → repositories → services → controllers → routes) y deja explícitas las dependencias entre ellas.
 - Para un `fix`, la primera tarea es reproducir el error (un test con `node:test` o una petición `curl` que falle). Para un `refactor`, la primera es fijar el comportamiento actual que no debe cambiar.
 - Si la tarea añade o cambia comportamiento, incluye el test correspondiente (`node:test` + `node:assert`) en esa misma tarea o en la siguiente.
+- Si el trabajo toca la API, incluye **siempre** una tarea de capa `docs` justo después de la última tarea de `controllers`/`routes`, con este contenido:
+  - **Archivos:** `docs/api/openapi.yaml` y `docs/api/index.html`.
+  - **Qué hacer:** reflejar en el `openapi.yaml` las operaciones, esquemas, roles y códigos de estado afectados y regenerar el HTML con `npm run docs:api`. El `index.html` es generado: nunca se edita a mano.
+  - **Criterios:** `npm run docs:api` termina sin errores, y una petición `curl` a cada operación cambiada devuelve el código de estado y la forma de respuesta documentados.
 
 ### 4. Definir los criterios de aceptación
 
 - **Por tarea**: 1-3 criterios concretos y comprobables que indican que la tarea está terminada (un comando, una petición con su respuesta y código de estado esperados, un test que pasa).
-- **Globales**: lo que debe cumplirse para dar por aceptado el desarrollo completo. Incluye siempre los criterios fijos de la plantilla (convenciones, arranque, sin dependencias nuevas) además de los específicos del trabajo.
+- **Globales**: lo que debe cumplirse para dar por aceptado el desarrollo completo. Incluye siempre los criterios fijos de la plantilla (convenciones, arranque, sin dependencias nuevas) además de los específicos del trabajo. Si el trabajo toca la API, el criterio fijo de OpenAPI es obligatorio; si no la toca, márcalo como "no aplica".
 - Evita criterios vagos como "funciona bien" o "código limpio": cada criterio debe poder marcarse como cumplido o no sin discusión.
 
 ### 5. Escribir el plan
