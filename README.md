@@ -161,6 +161,20 @@ npm test
 cd packages/api && npm run test:watch
 ```
 
+### Documentación de la API
+
+El contrato de la API (endpoints, roles, cuerpos, respuestas y errores) está definido en OpenAPI 3 en [`docs/api/openapi.yaml`](./docs/api/openapi.yaml). A partir de él se genera una página HTML navegable y publicable, [`docs/api/index.html`](./docs/api/index.html), que se puede abrir directamente en el navegador.
+
+```bash
+# Validar el openapi.yaml
+npm run docs:api:lint
+
+# Validar y regenerar docs/api/index.html
+npm run docs:api
+```
+
+Ambos comandos usan [Redocly CLI](https://redocly.com/docs/cli/) vía `npx` (no hay que instalar nada, pero necesitan red la primera vez). Si cambias la API, actualiza el `openapi.yaml` y regenera el HTML; nunca edites el `index.html` a mano.
+
 ---
 
 ## Problemas Comunes

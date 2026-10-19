@@ -181,7 +181,7 @@ Decisiones técnicas:
   - [x] El YAML contiene las 20 rutas (29 operaciones) del inventario; ninguna sobra ni falta.
 - **Notas:** el lint termina con 0 errores y 0 warnings. `build-docs` muestra un aviso de deprecación de la propia herramienta (pasará a Redoc 3 en una versión futura de Redocly CLI); no afecta a la especificación. Cotejo hecho con la especificación embebida en el `index.html` antiguo: mismas 29 operaciones. Revisión visual con Chrome headless.
 
-### [ ] T9 — Enlazar la documentación (~5 min)
+### [x] T9 — Enlazar la documentación (~5 min)
 
 - **Capa:** docs
 - **Archivos:** `README.md`, `docs/arquitectura/arquitectura-api.md`
@@ -190,7 +190,7 @@ Decisiones técnicas:
   1. Añadir en el README una sección "Documentación de la API" con la ruta de `openapi.yaml`/`index.html` y los comandos `npm run docs:api` y `npm run docs:api:lint`.
   2. Añadir en `arquitectura-api.md` una referencia al contrato y la regla "cualquier cambio de rutas, roles, cuerpos o códigos actualiza el YAML".
 - **Criterios de aceptación:**
-  - [ ] Ambos archivos enlazan a `docs/api/openapi.yaml` con ruta relativa válida.
+  - [x] Ambos archivos enlazan a `docs/api/openapi.yaml` con ruta relativa válida.
 
 ### [ ] T10 — EXTRA: regla OpenAPI en la skill `plan-feature` (~10 min)
 

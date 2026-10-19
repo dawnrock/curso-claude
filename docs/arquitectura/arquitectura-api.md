@@ -262,6 +262,8 @@ La excepción es `employee`: como sus rutas están repartidas en tres ficheros, 
 
 El contrato completo (cuerpos, respuestas y errores de cada endpoint) está en [`docs/api/openapi.yaml`](../api/openapi.yaml), con su versión navegable en [`docs/api/index.html`](../api/index.html). Se regenera con `npm run docs:api`.
 
+> **Regla:** cualquier cambio en rutas, roles (`authorize()`), cuerpos de petición o respuesta, parámetros o códigos de estado (incluidos los errores que mapea `errorHandler`) debe actualizar `docs/api/openapi.yaml` en el mismo cambio y regenerar el HTML con `npm run docs:api`. El `index.html` es generado: no se edita a mano.
+
 Todos cuelgan de `/api/v1`. La columna **Roles** indica qué valores de `req.user.role` acepta `authorize()`; “autenticado” significa que basta con un JWT válido, sin filtro de rol.
 
 ### Públicos (sin autenticación)
