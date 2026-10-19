@@ -74,7 +74,7 @@ Decisiones técnicas:
 
 ## Tareas
 
-### [ ] T1 — Esqueleto del `openapi.yaml` y componentes comunes (~10 min)
+### [x] T1 — Esqueleto del `openapi.yaml` y componentes comunes (~10 min)
 
 - **Capa:** docs
 - **Archivos:** `docs/api/openapi.yaml`
@@ -86,8 +86,8 @@ Decisiones técnicas:
   4. Añadir `components.responses` (`BadRequest`, `Unauthorized`, `Forbidden`, `NotFound`, `InternalError`).
   5. Documentar `GET /health` con `security: []`.
 - **Criterios de aceptación:**
-  - [ ] `npm run docs:api:lint` termina sin errores.
-  - [ ] `curl -s localhost:3000/health` devuelve `{"status":"ok"}`, igual que el ejemplo del YAML.
+  - [x] `npm run docs:api:lint` termina sin errores.
+  - [x] `curl -s localhost:3000/health` devuelve `{"status":"ok"}`, igual que el ejemplo del YAML.
 
 ### [ ] T2 — Endpoints de autenticación (~10 min)
 

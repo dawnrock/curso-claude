@@ -1,0 +1,179 @@
+openapi: 3.0.3
+
+info:
+  title: Resttek API
+  version: 1.0.0
+  description: |
+    REST API of **Resttek**, a restaurant management platform.
+
+    ## Authentication
+
+    Most endpoints require a JWT obtained from `POST /api/v1/auth/login` (or
+    `POST /api/v1/auth/register` for clients). Send it in the header
+    `Authorization: Bearer <token>`. The token payload holds the user's `id`,
+    `role` and `restaurantId`.
+
+    ## Roles
+
+    | Role | Used from | Scope |
+    | ---- | --------- | ----- |
+    | `admin` | web-admin | Whole platform |
+    | `manager` | web-admin, web-empleados | Their restaurant |
+    | `cocinero` | web-empleados | Kitchen of their restaurant |
+    | `camarero` | web-empleados | Dining room of their restaurant |
+    | `cliente` | web-clientes | Their own orders |
+
+    Each operation lists the roles allowed to call it. A valid token with a
+    role that is not allowed gets `403`.
+
+    ## Errors
+
+    Two error shapes coexist:
+
+    - `DomainError` (`{ error, message }`): domain errors mapped by the global
+      error handler. `*NotFoundError` → `404`, `InvalidCredentialsError` →
+      `401`, any other domain error → `400`, unexpected errors → `500`.
+    - `SimpleError` (`{ error }`): authentication/authorization middlewares
+      and the orders endpoints.
+
+    ## Test credentials
+
+    After `npm run seed`, every seeded user's password is their own email
+    (for example `admin@resttek.com` / `admin@resttek.com`).
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+tags:
+  - name: Health
+    description: Service status
+  - name: Auth
+    description: Login and client self-registration
+  - name: Public
+    description: Unauthenticated, client-facing endpoints
+  - name: Restaurants
+    description: Restaurant management
+  - name: Employees
+    description: Platform users (employees and clients)
+  - name: Dishes
+    description: Restaurant menu
+  - name: Ingredients
+    description: Restaurant ingredient stock
+  - name: Orders
+    description: Orders and per-item kitchen status
+
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      operationId: getHealth
+      security: []
+      responses:
+        '200':
+          description: The API is up
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    DomainError:
+      type: object
+      description: Domain error returned by the global error handler.
+      required: [error, message]
+      properties:
+        error:
+          type: string
+          description: Error class name
+          example: RestaurantNotFoundError
+        message:
+          type: string
+          example: Restaurant not found
+
+    SimpleError:
+      type: object
+      description: Error returned by the auth middlewares and the orders endpoints.
+      required: [error]
+      properties:
+        error:
+          type: string
+          example: 'Unauthorized: No token provided'
+
+    Role:
+      type: string
+      enum: [admin, manager, camarero, cocinero, cliente]
+
+    DishCategory:
+      type: string
+      enum: [entrante, principal, postre, bebida]
+      description: Case-insensitive on input; always returned in lowercase.
+
+    IngredientUnit:
+      type: string
+      enum: [kg, g, l, ml, unidad]
+      description: Case-insensitive on input; always returned in lowercase.
+
+    OrderItemStatus:
+      type: string
+      enum: [pendiente, preparando, listo, entregado]
+      description: Case-insensitive on input; always returned in lowercase.
+
+  responses:
+    BadRequest:
+      description: Validation or domain error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DomainError'
+
+    Unauthorized:
+      description: Missing, malformed or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SimpleError'
+          example:
+            error: 'Unauthorized: Invalid token'
+
+    Forbidden:
+      description: The user's role is not allowed to call this operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SimpleError'
+          example:
+            error: 'Forbidden: Insufficient permissions'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DomainError'
+
+    InternalError:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DomainError'
+          example:
+            error: InternalServerError
+            message: Something went wrong
