@@ -141,7 +141,7 @@ Decisiones técnicas:
   - [x] `npm run docs:api:lint` sin errores.
   - [x] El parámetro `restaurantId` se define una vez a nivel de path y se reutiliza.
 
-### [ ] T6 — Ingredientes (~10 min)
+### [x] T6 — Ingredientes (~10 min)
 
 - **Capa:** docs
 - **Archivos:** `docs/api/openapi.yaml`
@@ -151,8 +151,8 @@ Decisiones técnicas:
   2. Documentar las 5 operaciones de `/api/v1/restaurants/{restaurantId}/ingredients[/{id}]` (POST/PUT/DELETE solo admin; GET admin/manager/cocinero; DELETE → 204).
   3. Incluir en el 400 los errores `InvalidUnitError` y `NegativeStockError`.
 - **Criterios de aceptación:**
-  - [ ] `npm run docs:api:lint` sin errores.
-  - [ ] `IngredientUnit` se referencia con `$ref`, no se duplica el enum.
+  - [x] `npm run docs:api:lint` sin errores.
+  - [x] `IngredientUnit` se referencia con `$ref`, no se duplica el enum.
 
 ### [ ] T7 — Pedidos (~10 min)
 

@@ -572,6 +572,127 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
 
+  /api/v1/restaurants/{restaurantId}/ingredients:
+    parameters:
+      - $ref: '#/components/parameters/RestaurantId'
+    post:
+      tags: [Ingredients]
+      summary: Create an ingredient
+      description: 'Roles: `admin`.'
+      operationId: createIngredient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateIngredientRequest'
+      responses:
+        '201':
+          description: Ingredient created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ingredient'
+        '400':
+          $ref: '#/components/responses/IngredientValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    get:
+      tags: [Ingredients]
+      summary: List the ingredients of a restaurant
+      description: 'Roles: `admin`, `manager`, `cocinero`.'
+      operationId: listIngredients
+      responses:
+        '200':
+          description: All the restaurant's ingredients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ingredient'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/restaurants/{restaurantId}/ingredients/{id}:
+    parameters:
+      - $ref: '#/components/parameters/RestaurantId'
+      - $ref: '#/components/parameters/ResourceId'
+    get:
+      tags: [Ingredients]
+      summary: Get an ingredient
+      description: |
+        Roles: `admin`, `manager`, `cocinero`. The ingredient is looked up by
+        `id` only; `restaurantId` is not checked.
+      operationId: getIngredient
+      responses:
+        '200':
+          description: The ingredient
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ingredient'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    put:
+      tags: [Ingredients]
+      summary: Replace an ingredient
+      description: 'Roles: `admin`. Full update: every field is required.'
+      operationId: updateIngredient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateIngredientRequest'
+      responses:
+        '200':
+          description: Ingredient updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ingredient'
+        '400':
+          $ref: '#/components/responses/IngredientValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Ingredients]
+      summary: Delete an ingredient
+      description: 'Roles: `admin`.'
+      operationId: deleteIngredient
+      responses:
+        '204':
+          description: Ingredient deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -768,7 +889,7 @@ components:
       properties:
         ingredientId:
           type: string
-          example: ing-1
+          format: uuid
         quantity:
           type: number
           exclusiveMinimum: true
@@ -840,6 +961,60 @@ components:
           type: string
           format: date-time
 
+    CreateIngredientRequest:
+      type: object
+      required: [name, unit]
+      properties:
+        name:
+          type: string
+          example: Patata
+        unit:
+          $ref: '#/components/schemas/IngredientUnit'
+        currentStock:
+          type: number
+          minimum: 0
+          default: 0
+          example: 25
+
+    UpdateIngredientRequest:
+      type: object
+      required: [name, unit, currentStock]
+      properties:
+        name:
+          type: string
+          example: Patata
+        unit:
+          $ref: '#/components/schemas/IngredientUnit'
+        currentStock:
+          type: number
+          minimum: 0
+          example: 20
+
+    Ingredient:
+      type: object
+      required: [id, name, unit, currentStock, restaurantId, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Patata
+        unit:
+          $ref: '#/components/schemas/IngredientUnit'
+        currentStock:
+          type: number
+          example: 25
+        restaurantId:
+          type: string
+          example: rest-1
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
   parameters:
     ResourceId:
       name: id
@@ -891,6 +1066,16 @@ components:
           example:
             error: InvalidCategoryError
             message: 'Invalid category: pasta. Must be one of: entrante, principal, postre, bebida'
+
+    IngredientValidationError:
+      description: 'Validation error: `IngredientNameRequiredError`, `InvalidUnitError` or `NegativeStockError`.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DomainError'
+          example:
+            error: InvalidUnitError
+            message: 'Invalid unit: tazas. Must be one of: kg, g, l, ml, unidad'
 
     Unauthorized:
       description: Missing, malformed or invalid token
