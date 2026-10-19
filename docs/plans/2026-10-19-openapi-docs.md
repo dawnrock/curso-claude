@@ -102,7 +102,7 @@ Decisiones técnicas:
   - [x] `npm run docs:api:lint` sin errores.
   - [x] Un `curl -X POST localhost:3000/api/v1/auth/login` con credenciales del seed devuelve un JSON con las mismas propiedades que `AuthResponse`.
 
-### [ ] T3 — Restaurantes (privados y públicos) (~10 min)
+### [x] T3 — Restaurantes (privados y públicos) (~10 min)
 
 - **Capa:** docs
 - **Archivos:** `docs/api/openapi.yaml`
@@ -112,8 +112,8 @@ Decisiones técnicas:
   2. Documentar `POST`/`GET /api/v1/restaurants` y `GET`/`PUT /api/v1/restaurants/{id}` con roles y el comportamiento de `GET` según rol.
   3. Documentar `GET /api/v1/public/restaurants` y `GET /api/v1/public/restaurants/{id}` con `security: []`.
 - **Criterios de aceptación:**
-  - [ ] `npm run docs:api:lint` sin errores.
-  - [ ] Las 6 operaciones de restaurante aparecen con sus códigos (201/200/400/401/403/404 según aplique).
+  - [x] `npm run docs:api:lint` sin errores.
+  - [x] Las 6 operaciones de restaurante aparecen con sus códigos (201/200/400/401/403/404 según aplique).
 
 ### [ ] T4 — Empleados (~10 min)
 

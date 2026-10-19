@@ -156,6 +156,149 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
 
+  /api/v1/public/restaurants:
+    get:
+      tags: [Public]
+      summary: List all restaurants (public)
+      description: Public. Used by web-clientes to pick a restaurant.
+      operationId: listPublicRestaurants
+      security: []
+      responses:
+        '200':
+          description: All restaurants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Restaurant'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/public/restaurants/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ResourceId'
+    get:
+      tags: [Public]
+      summary: Get a restaurant (public)
+      description: Public.
+      operationId: getPublicRestaurant
+      security: []
+      responses:
+        '200':
+          description: The restaurant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Restaurant'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/restaurants:
+    post:
+      tags: [Restaurants]
+      summary: Create a restaurant
+      description: 'Roles: `admin`.'
+      operationId: createRestaurant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestaurantInput'
+      responses:
+        '201':
+          description: Restaurant created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Restaurant'
+        '400':
+          $ref: '#/components/responses/RestaurantValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    get:
+      tags: [Restaurants]
+      summary: List the restaurants visible to the user
+      description: |
+        Roles: any authenticated user.
+
+        - `admin`: every restaurant.
+        - Other roles: an array with only the user's restaurant, or `[]` if
+          the user has no `restaurantId`.
+      operationId: listRestaurants
+      responses:
+        '200':
+          description: Restaurants visible to the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Restaurant'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/restaurants/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ResourceId'
+    get:
+      tags: [Restaurants]
+      summary: Get a restaurant
+      description: 'Roles: any authenticated user.'
+      operationId: getRestaurant
+      responses:
+        '200':
+          description: The restaurant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Restaurant'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    put:
+      tags: [Restaurants]
+      summary: Replace a restaurant
+      description: 'Roles: `admin`. Full update: every required field must be sent.'
+      operationId: updateRestaurant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestaurantInput'
+      responses:
+        '200':
+          description: Restaurant updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Restaurant'
+        '400':
+          $ref: '#/components/responses/RestaurantValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -274,6 +417,70 @@ components:
           description: Restaurant the user works at; `null` for `admin` and `cliente`.
           example: null
 
+    RestaurantInput:
+      type: object
+      required: [name, address, email, phone, ownerFirstName, ownerLastName]
+      properties:
+        name:
+          type: string
+          example: La Tasca de Pepe
+        address:
+          type: string
+          example: Calle Mayor 1, Madrid
+        email:
+          type: string
+          format: email
+          example: tasca@resttek.com
+        phone:
+          type: string
+          pattern: '^\+?[\d\s\-()]{7,20}$'
+          example: '+34 911 222 333'
+        ownerFirstName:
+          type: string
+          example: Pepe
+        ownerLastName:
+          type: string
+          example: García
+        logoUrl:
+          type: string
+          nullable: true
+          default: null
+          example: https://example.com/logo.png
+
+    Restaurant:
+      allOf:
+        - type: object
+          required: [id, createdAt, updatedAt, logoUrl]
+          properties:
+            id:
+              type: string
+              example: rest-1
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+        - $ref: '#/components/schemas/RestaurantInput'
+
+  parameters:
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      description: Resource identifier
+      schema:
+        type: string
+
+    RestaurantId:
+      name: restaurantId
+      in: path
+      required: true
+      description: Restaurant identifier
+      schema:
+        type: string
+        example: rest-1
+
   responses:
     BadRequest:
       description: Validation or domain error
@@ -281,6 +488,19 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/DomainError'
+
+    RestaurantValidationError:
+      description: |
+        Validation error: `RestaurantNameRequiredError`,
+        `RestaurantAddressRequiredError`, `OwnerFirstNameRequiredError`,
+        `OwnerLastNameRequiredError`, `InvalidEmailError` or `InvalidPhoneError`.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DomainError'
+          example:
+            error: InvalidPhoneError
+            message: Invalid phone format
 
     Unauthorized:
       description: Missing, malformed or invalid token
