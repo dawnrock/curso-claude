@@ -154,7 +154,7 @@ Decisiones técnicas:
   - [x] `npm run docs:api:lint` sin errores.
   - [x] `IngredientUnit` se referencia con `$ref`, no se duplica el enum.
 
-### [ ] T7 — Pedidos (~10 min)
+### [x] T7 — Pedidos (~10 min)
 
 - **Capa:** docs
 - **Archivos:** `docs/api/openapi.yaml`
@@ -164,8 +164,8 @@ Decisiones técnicas:
   2. Añadir esquemas `OrderItem`, `Order` (campos opcionales `dishName`, `dishPrice`, `restaurantName`…), `CreateOrderRequest` y `UpdateOrderItemStatusRequest`.
   3. Documentar `POST /orders` (201), `GET /orders/active` (query `restaurantId` obligatoria, 400 si falta), `GET /orders/mine`, `GET /orders/{id}` (404) y `PATCH /orders/{orderId}/items/{itemId}/status` (204), con errores `SimpleError`.
 - **Criterios de aceptación:**
-  - [ ] `npm run docs:api:lint` sin errores.
-  - [ ] `curl` autenticado a `GET /api/v1/orders/active` sin `restaurantId` devuelve 400 `{ "error": "restaurantId is required" }`, igual que lo documentado.
+  - [x] `npm run docs:api:lint` sin errores.
+  - [x] `curl` autenticado a `GET /api/v1/orders/active` sin `restaurantId` devuelve 400 `{ "error": "restaurantId is required" }`, igual que lo documentado.
 
 ### [ ] T8 — Generar el HTML y cotejar cobertura (~5 min)
 
