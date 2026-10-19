@@ -427,6 +427,151 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
 
+  /api/v1/public/restaurants/{restaurantId}/dishes:
+    parameters:
+      - $ref: '#/components/parameters/RestaurantId'
+    get:
+      tags: [Public]
+      summary: List the available dishes of a restaurant (public)
+      description: Public. Only dishes with `available = true`. Used by web-clientes to show the menu.
+      operationId: listPublicDishes
+      security: []
+      responses:
+        '200':
+          description: Available dishes (empty if the restaurant does not exist)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dish'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/restaurants/{restaurantId}/dishes:
+    parameters:
+      - $ref: '#/components/parameters/RestaurantId'
+    post:
+      tags: [Dishes]
+      summary: Create a dish
+      description: 'Roles: `admin`, `manager`.'
+      operationId: createDish
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DishInput'
+      responses:
+        '201':
+          description: Dish created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dish'
+        '400':
+          $ref: '#/components/responses/DishValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    get:
+      tags: [Dishes]
+      summary: List the dishes of a restaurant
+      description: 'Roles: `admin`, `manager`, `camarero`, `cocinero`. Includes unavailable dishes.'
+      operationId: listDishes
+      responses:
+        '200':
+          description: All the restaurant's dishes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dish'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/restaurants/{restaurantId}/dishes/{id}:
+    parameters:
+      - $ref: '#/components/parameters/RestaurantId'
+      - $ref: '#/components/parameters/ResourceId'
+    get:
+      tags: [Dishes]
+      summary: Get a dish
+      description: |
+        Roles: `admin`, `manager`, `camarero`, `cocinero`. The dish is looked
+        up by `id` only; `restaurantId` is not checked.
+      operationId: getDish
+      responses:
+        '200':
+          description: The dish
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dish'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    put:
+      tags: [Dishes]
+      summary: Replace a dish
+      description: |
+        Roles: `admin`, `manager`. Full update: send every field, including
+        `available`. `ingredients` defaults to `[]`, so omitting it removes
+        all of the dish's ingredients.
+      operationId: updateDish
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DishInput'
+      responses:
+        '200':
+          description: Dish updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dish'
+        '400':
+          $ref: '#/components/responses/DishValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Dishes]
+      summary: Delete a dish
+      description: 'Roles: `admin`, `manager`.'
+      operationId: deleteDish
+      responses:
+        '204':
+          description: Dish deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -617,6 +762,84 @@ components:
               format: date-time
         - $ref: '#/components/schemas/RestaurantInput'
 
+    DishIngredient:
+      type: object
+      required: [ingredientId, quantity]
+      properties:
+        ingredientId:
+          type: string
+          example: ing-1
+        quantity:
+          type: number
+          exclusiveMinimum: true
+          minimum: 0
+          description: Amount used per dish, in the ingredient's unit
+          example: 0.3
+
+    DishInput:
+      type: object
+      required: [name, price, category]
+      properties:
+        name:
+          type: string
+          example: Tortilla de patatas
+        description:
+          type: string
+          nullable: true
+          default: null
+          example: Con cebolla
+        price:
+          type: number
+          exclusiveMinimum: true
+          minimum: 0
+          example: 12.5
+        category:
+          $ref: '#/components/schemas/DishCategory'
+        available:
+          type: boolean
+          default: true
+        ingredients:
+          type: array
+          default: []
+          items:
+            $ref: '#/components/schemas/DishIngredient'
+
+    Dish:
+      type: object
+      required: [id, name, description, price, category, available, restaurantId, ingredients, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Tortilla de patatas
+        description:
+          type: string
+          nullable: true
+          example: Con cebolla
+        price:
+          type: number
+          example: 12.5
+        category:
+          $ref: '#/components/schemas/DishCategory'
+        available:
+          type: boolean
+          example: true
+        restaurantId:
+          type: string
+          example: rest-1
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/DishIngredient'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
   parameters:
     ResourceId:
       name: id
@@ -655,6 +878,19 @@ components:
           example:
             error: InvalidPhoneError
             message: Invalid phone format
+
+    DishValidationError:
+      description: |
+        Validation error: `DishNameRequiredError`, `InvalidPriceError` or
+        `InvalidCategoryError`. An invalid item in `ingredients` (empty
+        `ingredientId` or `quantity <= 0`) currently returns `500`.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DomainError'
+          example:
+            error: InvalidCategoryError
+            message: 'Invalid category: pasta. Must be one of: entrante, principal, postre, bebida'
 
     Unauthorized:
       description: Missing, malformed or invalid token

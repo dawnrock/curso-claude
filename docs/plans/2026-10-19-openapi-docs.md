@@ -128,7 +128,7 @@ Decisiones técnicas:
   - [x] `npm run docs:api:lint` sin errores.
   - [x] `GET /api/v1/employees` documenta los 3 parámetros de query con su valor por defecto.
 
-### [ ] T5 — Platos (privados y públicos) (~10 min)
+### [x] T5 — Platos (privados y públicos) (~10 min)
 
 - **Capa:** docs
 - **Archivos:** `docs/api/openapi.yaml`
@@ -138,8 +138,8 @@ Decisiones técnicas:
   2. Documentar las 5 operaciones de `/api/v1/restaurants/{restaurantId}/dishes[/{id}]` con sus roles (DELETE → 204).
   3. Documentar `GET /api/v1/public/restaurants/{restaurantId}/dishes` (solo platos disponibles, `security: []`).
 - **Criterios de aceptación:**
-  - [ ] `npm run docs:api:lint` sin errores.
-  - [ ] El parámetro `restaurantId` se define una vez a nivel de path y se reutiliza.
+  - [x] `npm run docs:api:lint` sin errores.
+  - [x] El parámetro `restaurantId` se define una vez a nivel de path y se reutiliza.
 
 ### [ ] T6 — Ingredientes (~10 min)
 
