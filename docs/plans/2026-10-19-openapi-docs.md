@@ -167,7 +167,7 @@ Decisiones técnicas:
   - [x] `npm run docs:api:lint` sin errores.
   - [x] `curl` autenticado a `GET /api/v1/orders/active` sin `restaurantId` devuelve 400 `{ "error": "restaurantId is required" }`, igual que lo documentado.
 
-### [ ] T8 — Generar el HTML y cotejar cobertura (~5 min)
+### [x] T8 — Generar el HTML y cotejar cobertura (~5 min)
 
 - **Capa:** docs
 - **Archivos:** `docs/api/index.html`
@@ -177,8 +177,9 @@ Decisiones técnicas:
   2. Comparar las rutas del YAML con las del inventario del Contexto (y con la especificación embebida en el `index.html` antiguo antes de sobrescribirlo).
   3. Abrir `docs/api/index.html` en el navegador y revisar que todas las secciones se ven.
 - **Criterios de aceptación:**
-  - [ ] `npm run docs:api` termina sin errores ni warnings y regenera `docs/api/index.html`.
-  - [ ] El YAML contiene las 20 rutas (29 operaciones) del inventario; ninguna sobra ni falta.
+  - [x] `npm run docs:api` termina sin errores ni warnings y regenera `docs/api/index.html`.
+  - [x] El YAML contiene las 20 rutas (29 operaciones) del inventario; ninguna sobra ni falta.
+- **Notas:** el lint termina con 0 errores y 0 warnings. `build-docs` muestra un aviso de deprecación de la propia herramienta (pasará a Redoc 3 en una versión futura de Redocly CLI); no afecta a la especificación. Cotejo hecho con la especificación embebida en el `index.html` antiguo: mismas 29 operaciones. Revisión visual con Chrome headless.
 
 ### [ ] T9 — Enlazar la documentación (~5 min)
 
