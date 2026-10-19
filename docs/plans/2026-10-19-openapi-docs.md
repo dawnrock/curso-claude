@@ -89,7 +89,7 @@ Decisiones técnicas:
   - [x] `npm run docs:api:lint` termina sin errores.
   - [x] `curl -s localhost:3000/health` devuelve `{"status":"ok"}`, igual que el ejemplo del YAML.
 
-### [ ] T2 — Endpoints de autenticación (~10 min)
+### [x] T2 — Endpoints de autenticación (~10 min)
 
 - **Capa:** docs
 - **Archivos:** `docs/api/openapi.yaml`
@@ -99,8 +99,8 @@ Decisiones técnicas:
   2. Añadir esquemas `LoginRequest`, `RegisterClientRequest`, `AuthResponse` (token + usuario).
   3. Documentar `POST /api/v1/auth/login` (200, 400, 401) y `POST /api/v1/auth/register` (201, 400 incl. `DuplicatedEmailError`), ambos con `security: []` y ejemplos.
 - **Criterios de aceptación:**
-  - [ ] `npm run docs:api:lint` sin errores.
-  - [ ] Un `curl -X POST localhost:3000/api/v1/auth/login` con credenciales del seed devuelve un JSON con las mismas propiedades que `AuthResponse`.
+  - [x] `npm run docs:api:lint` sin errores.
+  - [x] Un `curl -X POST localhost:3000/api/v1/auth/login` con credenciales del seed devuelve un JSON con las mismas propiedades que `AuthResponse`.
 
 ### [ ] T3 — Restaurantes (privados y públicos) (~10 min)
 
