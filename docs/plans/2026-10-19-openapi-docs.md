@@ -2,7 +2,7 @@
 
 - **Tipo:** feature
 - **Fecha:** 2026-10-19
-- **Estado:** en curso
+- **Estado:** completado
 - **Estimación total:** ~90 min (11 tareas)
 
 ## Objetivo
@@ -222,22 +222,22 @@ Decisiones técnicas:
 
 **Específicos:**
 
-- [ ] Existe `docs/api/openapi.yaml` (OpenAPI 3.0.3) con las 29 operaciones de la API, cada una con tag, roles en la descripción, `security` correcta, cuerpo de petición (si aplica) y todas sus respuestas (éxito y error).
-- [ ] `npm run docs:api` termina sin errores y `docs/api/index.html` se ha regenerado desde el YAML (no editado a mano).
-- [ ] Todos los esquemas se definen una vez en `components` y se reutilizan con `$ref`.
-- [ ] Al menos 3 respuestas reales (`/health`, login, `orders/active` sin `restaurantId`) coinciden con lo documentado.
-- [ ] README y `docs/arquitectura/arquitectura-api.md` enlazan la documentación.
-- [ ] La skill `plan-feature` (SKILL.md y plantilla) obliga a incluir la actualización del `openapi.yaml` cuando un plan toca la API.
+- [x] Existe `docs/api/openapi.yaml` (OpenAPI 3.0.3) con las 29 operaciones de la API, cada una con tag, roles en la descripción, `security` correcta, cuerpo de petición (si aplica) y todas sus respuestas (éxito y error). _Verificado con un script sobre el bundle JSON; única excepción: `GET /health` no declara `500` porque no puede fallar._
+- [x] `npm run docs:api` termina sin errores y `docs/api/index.html` se ha regenerado desde el YAML (no editado a mano).
+- [x] Todos los esquemas se definen una vez en `components` y se reutilizan con `$ref`. _Excepción: `OrderItem.dishCategory` repite los valores del enum en línea porque OpenAPI 3.0 no permite `nullable` junto a un `$ref`._
+- [x] Al menos 3 respuestas reales (`/health`, login, `orders/active` sin `restaurantId`) coinciden con lo documentado.
+- [x] README y `docs/arquitectura/arquitectura-api.md` enlazan la documentación.
+- [x] La skill `plan-feature` (SKILL.md y plantilla) obliga a incluir la actualización del `openapi.yaml` cuando un plan toca la API.
 
 **Fijos** (adaptados a los comandos reales del repo):
 
-- [ ] Todas las tareas y sus criterios están marcados como cumplidos.
-- [ ] `npm run dev:api` arranca sin errores y `GET /health` responde `{ "status": "ok" }`.
-- [ ] Se respetan las capas: este plan no modifica código de `packages/api/src`.
-- [ ] Convenciones de nombres de `CLAUDE.md`: no aplica (no hay código nuevo).
-- [ ] Errores: no aplica (no cambia el manejo de errores).
-- [ ] No se añaden dependencias: Redocly se ejecuta con `npx` y no entra en ningún `package.json`.
-- [ ] `npm test` pasa.
+- [x] Todas las tareas y sus criterios están marcados como cumplidos.
+- [x] `npm run dev:api` arranca sin errores y `GET /health` responde `{ "status": "ok" }`.
+- [x] Se respetan las capas: este plan no modifica código de `packages/api/src`.
+- [x] Convenciones de nombres de `CLAUDE.md`: no aplica (no hay código nuevo).
+- [x] Errores: no aplica (no cambia el manejo de errores).
+- [x] No se añaden dependencias: Redocly se ejecuta con `npx` y no entra en ningún `package.json`.
+- [x] `npm test` pasa.
 
 ## Riesgos y preguntas abiertas
 
