@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build output and caches
+dist/
+.angular/
+
+# Local data and secrets
+*.db
+.env
+.env.*
+.mcp.json
+
+# Claude Code
+.claude/worktrees/
+.claude/settings.local.json
+
+# OS
+.DS_Store

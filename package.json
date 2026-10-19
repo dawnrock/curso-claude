@@ -1,0 +1,18 @@
+{
+  "name": "resttek",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @resttek/api",
+    "dev:admin": "npm run start -w @resttek/web-admin",
+    "dev:empleados": "npm run start -w @resttek/web-empleados",
+    "dev:clientes": "npm run start -w @resttek/web-clientes",
+    "test": "npm run test -w @resttek/api",
+    "seed": "npm run seed -w @resttek/api",
+    "docs:api:lint": "npx -y @redocly/cli@2 lint docs/api/openapi.yaml --config docs/api/redocly.yaml",
+    "docs:api": "npm run docs:api:lint && npx -y @redocly/cli@2 build-docs docs/api/openapi.yaml --config docs/api/redocly.yaml -o docs/api/index.html"
+  }
+}

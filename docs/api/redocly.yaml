@@ -1,0 +1,7 @@
+extends:
+  - recommended
+
+rules:
+  # Internal API: no license, and the only server is the local dev one.
+  info-license: off
+  no-server-example.com: off
