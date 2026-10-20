@@ -8,6 +8,7 @@ interface OrderRow {
     table_id: string | null
     client_id: string | null
     created_at: string
+    table_number: number | null
 }
 
 interface OrderRowWithRestaurant extends OrderRow {
@@ -30,12 +31,18 @@ interface OrderItemWithDishRow extends OrderItemRow {
     dish_category: string
 }
 
+export interface TableOccupation {
+    tableId: string
+    since: string
+}
+
 export interface OrderRepository {
     create(order: Order): Promise<void>
     findById(id: string): Promise<Order | null>
     updateItemStatus(orderId: string, itemId: string, status: string): Promise<void>
     findActiveByRestaurant(restaurantId: string): Promise<Order[]>
     findByClientId(clientId: string): Promise<Order[]>
+    findByTablesSince(occupations: TableOccupation[]): Promise<Order[]>
 }
 
 export class SqliteOrderRepository implements OrderRepository {
@@ -57,9 +64,10 @@ export class SqliteOrderRepository implements OrderRepository {
 
     async findById(id: string): Promise<Order | null> {
         const orderRow = await this.db.get<OrderRowWithRestaurant>(
-            `SELECT o.*, r.name as restaurant_name, r.logo_url as restaurant_logo_url
+            `SELECT o.*, r.name as restaurant_name, r.logo_url as restaurant_logo_url, t.number as table_number
              FROM orders o
              LEFT JOIN restaurants r ON o.restaurant_id = r.id
+             LEFT JOIN tables t ON o.table_id = t.id
              WHERE o.id = ?`,
             [id]
         )
@@ -71,6 +79,7 @@ export class SqliteOrderRepository implements OrderRepository {
             id: orderRow.id,
             restaurantId: orderRow.restaurant_id,
             tableId: orderRow.table_id,
+            tableNumber: orderRow.table_number,
             clientId: orderRow.client_id,
             createdAt: new Date(orderRow.created_at),
             items,
@@ -88,9 +97,10 @@ export class SqliteOrderRepository implements OrderRepository {
 
     async findActiveByRestaurant(restaurantId: string): Promise<Order[]> {
         const query = `
-            SELECT DISTINCT o.*
+            SELECT DISTINCT o.*, t.number as table_number
             FROM orders o
             JOIN order_items oi ON o.id = oi.order_id
+            LEFT JOIN tables t ON o.table_id = t.id
             WHERE o.restaurant_id = ? AND oi.status != 'entregado'
             ORDER BY o.created_at ASC
         `
@@ -103,6 +113,7 @@ export class SqliteOrderRepository implements OrderRepository {
                 id: row.id,
                 restaurantId: row.restaurant_id,
                 tableId: row.table_id,
+                tableNumber: row.table_number,
                 clientId: row.client_id,
                 createdAt: new Date(row.created_at),
                 items
@@ -114,9 +125,10 @@ export class SqliteOrderRepository implements OrderRepository {
 
     async findByClientId(clientId: string): Promise<Order[]> {
         const orderRows = await this.db.all<OrderRowWithRestaurant>(
-            `SELECT o.*, r.name as restaurant_name, r.logo_url as restaurant_logo_url
+            `SELECT o.*, r.name as restaurant_name, r.logo_url as restaurant_logo_url, t.number as table_number
              FROM orders o
              LEFT JOIN restaurants r ON o.restaurant_id = r.id
+             LEFT JOIN tables t ON o.table_id = t.id
              WHERE o.client_id = ?
              ORDER BY o.created_at DESC`,
             [clientId]
@@ -129,6 +141,7 @@ export class SqliteOrderRepository implements OrderRepository {
                 id: row.id,
                 restaurantId: row.restaurant_id,
                 tableId: row.table_id,
+                tableNumber: row.table_number,
                 clientId: row.client_id,
                 createdAt: new Date(row.created_at),
                 items,
@@ -140,6 +153,39 @@ export class SqliteOrderRepository implements OrderRepository {
         return orders
     }
 
+    async findByTablesSince(occupations: TableOccupation[]): Promise<Order[]> {
+        if (occupations.length === 0) return []
+
+        const conditions = occupations.map(() => '(o.table_id = ? AND o.created_at >= ?)').join(' OR ')
+        const orderRows = await this.db.all<OrderRow>(
+            `SELECT o.*, t.number as table_number
+             FROM orders o
+             LEFT JOIN tables t ON o.table_id = t.id
+             WHERE ${conditions}
+             ORDER BY o.created_at ASC`,
+            occupations.flatMap(o => [o.tableId, o.since])
+        )
+        if (orderRows.length === 0) return []
+
+        const itemRows = await this.db.all<OrderItemWithDishRow>(
+            `SELECT oi.*, d.name as dish_name, d.price as dish_price, d.category as dish_category
+             FROM order_items oi
+             LEFT JOIN dishes d ON oi.dish_id = d.id
+             WHERE oi.order_id IN (${orderRows.map(() => '?').join(', ')})`,
+            orderRows.map(row => row.id)
+        )
+
+        return orderRows.map(row => ({
+            id: row.id,
+            restaurantId: row.restaurant_id,
+            tableId: row.table_id,
+            tableNumber: row.table_number,
+            clientId: row.client_id,
+            createdAt: new Date(row.created_at),
+            items: itemRows.filter(item => item.order_id === row.id).map(item => this.mapToOrderItem(item))
+        }))
+    }
+
     private async getOrderItems(orderId: string): Promise<OrderItem[]> {
         const itemRows = await this.db.all<OrderItemWithDishRow>(`
             SELECT oi.*, d.name as dish_name, d.price as dish_price, d.category as dish_category
@@ -148,7 +194,11 @@ export class SqliteOrderRepository implements OrderRepository {
             WHERE oi.order_id = ?
         `, [orderId])
 
-        return itemRows.map(row => ({
+        return itemRows.map(row => this.mapToOrderItem(row))
+    }
+
+    private mapToOrderItem(row: OrderItemWithDishRow): OrderItem {
+        return {
             id: row.id,
             dishId: row.dish_id,
             quantity: row.quantity,
@@ -157,6 +207,6 @@ export class SqliteOrderRepository implements OrderRepository {
             dishName: row.dish_name,
             dishPrice: row.dish_price,
             dishCategory: row.dish_category
-        }))
+        }
     }
 }
