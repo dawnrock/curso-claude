@@ -1,0 +1,79 @@
+<div class="fade-in">
+  <div class="page-header">
+    <h1>Mesas</h1>
+    <a [routerLink]="['new']" class="btn btn-primary">
+      <lucide-icon name="plus" [size]="16"></lucide-icon>
+      Nueva mesa
+    </a>
+  </div>
+
+  @if (actionError()) {
+    <div class="alert-error">{{ actionError() }}</div>
+  }
+
+  @if (store.loading()) {
+    <div class="spinner"></div>
+  } @else if (store.error()) {
+    <div class="alert-error">{{ store.error() }}</div>
+  } @else if (store.tables().length === 0) {
+    <div class="empty-state card">
+      <lucide-icon name="armchair" [size]="40"></lucide-icon>
+      <p>No hay mesas para este restaurante</p>
+    </div>
+  } @else {
+    <div class="card table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Descripción</th>
+            <th>Capacidad</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of store.tables(); track t.id) {
+            <tr>
+              <td class="table-number">{{ t.number }}</td>
+              <td>
+                @if (t.description) {
+                  {{ t.description }}
+                } @else {
+                  <span class="no-description">Sin descripción</span>
+                }
+              </td>
+              <td>{{ t.capacity }} {{ t.capacity === 1 ? 'persona' : 'personas' }}</td>
+              <td>
+                <select
+                  class="form-control status-select"
+                  [attr.data-status]="t.status"
+                  [value]="t.status"
+                  (change)="onStatusChange(t, $event)"
+                  [attr.aria-label]="'Estado de la mesa ' + t.number">
+                  @for (s of statuses; track s) {
+                    <option [value]="s" [selected]="s === t.status">{{ statusLabels[s] }}</option>
+                  }
+                </select>
+              </td>
+              <td>
+                <div class="actions">
+                  <a [routerLink]="[t.id, 'edit']" class="btn btn-secondary btn-sm">
+                    <lucide-icon name="edit" [size]="14"></lucide-icon>
+                  </a>
+                  <button
+                    class="btn btn-danger btn-sm"
+                    (click)="onDelete(t)"
+                    [disabled]="t.status === 'ocupada'"
+                    [title]="t.status === 'ocupada' ? 'No se puede eliminar una mesa ocupada' : 'Eliminar mesa'">
+                    <lucide-icon name="trash-2" [size]="14"></lucide-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
