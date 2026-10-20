@@ -39,3 +39,13 @@ export const authorize = (roles: string[]) => {
         next()
     }
 }
+
+const RESTAURANT_SCOPED_ROLES = ['manager', 'camarero', 'cocinero']
+
+export const restrictToOwnRestaurant = (req: AuthRequest, res: Response, next: NextFunction): void => {
+    if (req.user && RESTAURANT_SCOPED_ROLES.includes(req.user.role) && req.params.restaurantId !== req.user.restaurantId) {
+        res.status(403).json({ error: 'Forbidden: Restaurant mismatch' })
+        return
+    }
+    next()
+}
