@@ -1,5 +1,6 @@
 # Plan: <título breve>
 
+- **Issue:** [#N](<URL de la issue>)
 - **Tipo:** feature | fix | refactor
 - **Fecha:** AAAA-MM-DD
 - **Estado:** borrador
