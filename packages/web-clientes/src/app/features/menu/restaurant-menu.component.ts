@@ -5,6 +5,7 @@ import { LucideAngularModule } from 'lucide-angular'
 import { DishService } from '../../core/services/dish.service'
 import { RestaurantService } from '../../core/services/restaurant.service'
 import { CartStore, Dish } from '../../core/store/cart.store'
+import { TableStore } from '../../core/store/table.store'
 import { Restaurant } from '../../core/models/restaurant.model'
 
 @Component({
@@ -17,6 +18,9 @@ import { Restaurant } from '../../core/models/restaurant.model'
         <div>
           <a routerLink="/restaurants" class="back-link">← Volver a restaurantes</a>
           <h1>{{ restaurant()?.name || 'Cargando...' }}</h1>
+          @if (table(); as table) {
+            <span class="table-badge">Mesa {{ table.number }}</span>
+          }
         </div>
       </div>
 
@@ -93,6 +97,16 @@ import { Restaurant } from '../../core/models/restaurant.model'
       color: var(--text-muted);
       margin-bottom: 8px;
       display: inline-block;
+    }
+    .table-badge {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 2px 10px;
+      border-radius: var(--radius-sm);
+      background: var(--green-glow);
+      color: var(--green-light);
+      font-size: 13px;
+      font-weight: 600;
     }
     .menu-layout {
       display: grid;
@@ -212,7 +226,9 @@ export class RestaurantMenuComponent implements OnInit {
   private readonly dishService = inject(DishService)
   private readonly restaurantService = inject(RestaurantService)
   readonly cartStore = inject(CartStore)
+  private readonly tableStore = inject(TableStore)
 
+  readonly table = computed(() => this.tableStore.tableFor(this.route.snapshot.paramMap.get('id')))
   readonly restaurant = signal<Restaurant | null>(null)
   readonly dishes = signal<Dish[]>([])
   readonly loading = signal(true)

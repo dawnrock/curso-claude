@@ -3,6 +3,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router'
 import { LucideAngularModule } from 'lucide-angular'
 import { AuthStore } from '@resttek/web-shared'
 import { CartStore } from '../store/cart.store'
+import { TableStore } from '../store/table.store'
 
 @Component({
   selector: 'app-shell',
@@ -176,6 +177,7 @@ import { CartStore } from '../store/cart.store'
 export class ShellComponent {
   private readonly authStore = inject(AuthStore)
   private readonly cartStore = inject(CartStore)
+  private readonly tableStore = inject(TableStore)
 
   readonly userName = computed(() => {
     const user = this.authStore.user()
@@ -185,6 +187,7 @@ export class ShellComponent {
   readonly itemCount = computed(() => this.cartStore.itemCount())
 
   logout(): void {
+    this.tableStore.clearAll()
     this.authStore.clearSession()
   }
 }
