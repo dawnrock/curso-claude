@@ -184,7 +184,10 @@ const seed = async () => {
 
         const table5Id = (await dbConfig.get<{id: string}>('SELECT id FROM tables WHERE restaurant_id = ? AND number = ?', ['rest-1', 5]))?.id ?? null
 
-        const order1Id = randomUUID()
+        // Fixed ids keep the sample order idempotent across seed runs
+        const order1Id = 'order-sample-1'
+        let order1ItemNumber = 0
+        const nextOrder1ItemId = () => `${order1Id}-item-${++order1ItemNumber}`
         await dbConfig.run(`
             INSERT OR IGNORE INTO orders (id, restaurant_id, table_id, client_id, created_at)
             VALUES (?, ?, ?, ?, ?)
@@ -194,27 +197,27 @@ const seed = async () => {
             await dbConfig.run(`
                 INSERT OR IGNORE INTO order_items (id, order_id, dish_id, quantity, notes, status)
                 VALUES (?, ?, ?, ?, ?, ?)
-            `, [randomUUID(), order1Id, dish1Id, 1, null, 'pendiente'])
+            `, [nextOrder1ItemId(), order1Id, dish1Id, 1, null, 'pendiente'])
         }
 
         for (let i = 0; i < 3; i++) {
             await dbConfig.run(`
                 INSERT OR IGNORE INTO order_items (id, order_id, dish_id, quantity, notes, status)
                 VALUES (?, ?, ?, ?, ?, ?)
-            `, [randomUUID(), order1Id, dish2Id, 1, 'Sin cebolla', 'pendiente'])
+            `, [nextOrder1ItemId(), order1Id, dish2Id, 1, 'Sin cebolla', 'pendiente'])
         }
 
         await dbConfig.run(`
             INSERT OR IGNORE INTO order_items (id, order_id, dish_id, quantity, notes, status)
             VALUES (?, ?, ?, ?, ?, ?)
-        `, [randomUUID(), order1Id, dish3Id, 1, null, 'preparando'])
+        `, [nextOrder1ItemId(), order1Id, dish3Id, 1, null, 'preparando'])
 
         const drink1Id = (await dbConfig.get<{id: string}>('SELECT id FROM dishes WHERE name = ? AND restaurant_id = ?', ['Refresco de Cola', 'rest-1']))?.id
         if (drink1Id) {
             await dbConfig.run(`
                 INSERT OR IGNORE INTO order_items (id, order_id, dish_id, quantity, notes, status)
                 VALUES (?, ?, ?, ?, ?, ?)
-            `, [randomUUID(), order1Id, drink1Id, 1, null, 'pendiente'])
+            `, [nextOrder1ItemId(), order1Id, drink1Id, 1, null, 'pendiente'])
         }
 
         const drink2Id = (await dbConfig.get<{id: string}>('SELECT id FROM dishes WHERE name = ? AND restaurant_id = ?', ['Agua Mineral', 'rest-1']))?.id
@@ -222,7 +225,7 @@ const seed = async () => {
             await dbConfig.run(`
                 INSERT OR IGNORE INTO order_items (id, order_id, dish_id, quantity, notes, status)
                 VALUES (?, ?, ?, ?, ?, ?)
-            `, [randomUUID(), order1Id, drink2Id, 2, null, 'pendiente'])
+            `, [nextOrder1ItemId(), order1Id, drink2Id, 2, null, 'pendiente'])
         }
 
         console.log('Sample orders created')

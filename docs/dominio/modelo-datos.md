@@ -272,7 +272,7 @@ Líneas de pedido. Cada ítem es un plato con cantidad y estado.
 
 ## Notas Técnicas
 
-- **IDs**: Todos son UUID v4 generados con `crypto.randomUUID()`. Excepción: el script de seed usa los identificadores fijos `rest-1` y `rest-2` para los restaurantes de prueba. El seed crea 6 mesas en `rest-1` (la 4 `reservada` y la 5 `ocupada`, con el pedido de ejemplo) y 4 en `rest-2`; es idempotente gracias a la restricción UNIQUE (`restaurant_id`, `number`).
+- **IDs**: Todos son UUID v4 generados con `crypto.randomUUID()`. Excepción: el script de seed usa los identificadores fijos `rest-1` y `rest-2` para los restaurantes de prueba, y `order-sample-1` (con ítems `order-sample-1-item-N`) para el pedido de ejemplo, de modo que volver a sembrar no lo duplica. El seed crea 6 mesas en `rest-1` (la 4 `reservada` y la 5 `ocupada`, con el pedido de ejemplo) y 4 en `rest-2`; es idempotente gracias a la restricción UNIQUE (`restaurant_id`, `number`).
 - **Fechas**: Almacenadas como TEXT en formato ISO 8601 (`new Date().toISOString()`).
 - **Booleanos**: SQLite no tiene tipo BOOLEAN; se usa INTEGER (0 = false, 1 = true).
 - **Nomenclatura**: las columnas son `snake_case` y las propiedades TypeScript `camelCase`. La conversión se hace con alias en el propio SQL (`owner_first_name as ownerFirstName`).
