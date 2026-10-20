@@ -1,8 +1,10 @@
-import { Component, inject, signal } from '@angular/core'
+import { Component, inject, signal, computed } from '@angular/core'
 import { Router, RouterLink } from '@angular/router'
 import { DecimalPipe } from '@angular/common'
+import { HttpErrorResponse } from '@angular/common/http'
 import { CartStore } from '../../core/store/cart.store'
 import { OrderService } from '../../core/services/order.service'
+import { TableStore } from '../../core/store/table.store'
 
 @Component({
   selector: 'app-cart',
@@ -46,6 +48,14 @@ import { OrderService } from '../../core/services/order.service'
           <aside class="order-summary card">
             <h3>Resumen</h3>
             <div class="summary-row">
+              <span>Mesa</span>
+              @if (table(); as table) {
+                <strong>{{ table.number }}</strong>
+              } @else {
+                <a [routerLink]="['/restaurants', cartStore.restaurantId(), 'table']">Elegir mesa</a>
+              }
+            </div>
+            <div class="summary-row">
               <span>Items ({{ cartStore.itemCount() }})</span>
               <span>{{ cartStore.total() | number:'1.2-2' }} €</span>
             </div>
@@ -54,7 +64,7 @@ import { OrderService } from '../../core/services/order.service'
               <strong>{{ cartStore.total() | number:'1.2-2' }} €</strong>
             </div>
             <button class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 16px;" 
-                    [disabled]="loading()" (click)="confirmOrder()">
+                    [disabled]="loading() || !table()" (click)="confirmOrder()">
               @if (loading()) {
                 Confirmando...
               } @else if (error()) {
@@ -170,11 +180,14 @@ import { OrderService } from '../../core/services/order.service'
 })
 export class CartComponent {
   readonly cartStore = inject(CartStore)
+  private readonly tableStore = inject(TableStore)
   private readonly orderService = inject(OrderService)
   private readonly router = inject(Router)
 
   readonly loading = signal(false)
   readonly error = signal<string | null>(null)
+
+  readonly table = computed(() => this.tableStore.tableFor(this.cartStore.restaurantId()))
 
   increment(dishId: string): void {
     const item = this.cartStore.items().find(i => i.dish.id === dishId)
@@ -196,7 +209,8 @@ export class CartComponent {
 
   confirmOrder(): void {
     const restaurantId = this.cartStore.restaurantId()
-    if (!restaurantId || this.cartStore.items().length === 0) return
+    const table = this.table()
+    if (!restaurantId || !table || this.cartStore.items().length === 0) return
 
     this.loading.set(true)
     this.error.set(null)
@@ -207,13 +221,19 @@ export class CartComponent {
       notes: item.notes || null
     }))
 
-    this.orderService.createOrder(restaurantId, items).subscribe({
+    this.orderService.createOrder(restaurantId, table.id, items).subscribe({
       next: (order) => {
         this.cartStore.clear()
         this.router.navigate(['/orders', order.id])
       },
-      error: (err) => {
-        this.error.set('Error al confirmar el pedido. Inténtalo de nuevo.')
+      error: (err: HttpErrorResponse) => {
+        const reason = err.error?.error
+        if (reason === 'The table is not occupied' || reason === 'Table not found') {
+          this.tableStore.clear(restaurantId)
+          this.error.set('Tu mesa ya no está disponible. Elige otra mesa para enviar el pedido.')
+        } else {
+          this.error.set('Error al confirmar el pedido. Inténtalo de nuevo.')
+        }
         this.loading.set(false)
       }
     })
