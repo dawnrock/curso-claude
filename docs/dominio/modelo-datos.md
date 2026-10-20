@@ -12,6 +12,8 @@ erDiagram
     restaurants ||--o{ ingredients : "tiene"
     restaurants ||--o{ dishes : "tiene"
     restaurants ||--o{ orders : "tiene"
+    restaurants ||--o{ tables : "tiene"
+    tables |o..o{ orders : "recibe"
     dishes ||--o{ dish_ingredients : "contiene"
     ingredients ||--o{ dish_ingredients : "usado en"
     orders ||--o{ order_items : "contiene"
@@ -66,6 +68,18 @@ erDiagram
         TEXT dish_id PK_FK
         TEXT ingredient_id PK_FK
         REAL quantity
+    }
+
+    tables {
+        TEXT id PK
+        TEXT restaurant_id FK
+        INTEGER number
+        TEXT description
+        INTEGER capacity
+        TEXT status
+        TEXT occupied_at
+        TEXT created_at
+        TEXT updated_at
     }
 
     orders {
@@ -182,6 +196,31 @@ Relación muchos-a-muchos entre platos e ingredientes.
 
 ---
 
+### `tables`
+
+Mesas de cada restaurante.
+
+| Columna | Tipo | Nullable | Descripción |
+| --- | --- | --- | --- |
+| `id` | TEXT | No | UUID, clave primaria |
+| `restaurant_id` | TEXT | No | FK → `restaurants.id` |
+| `number` | INTEGER | No | Número de mesa (entero ≥ 1) |
+| `description` | TEXT | Sí | Descripción libre (ej: "Terraza") |
+| `capacity` | INTEGER | No | Número máximo de comensales (entero ≥ 1) |
+| `status` | TEXT | No | Estado: libre, ocupada, reservada (default: libre) |
+| `occupied_at` | TEXT | Sí | Momento en que la mesa pasó a `ocupada`; null en cualquier otro estado |
+| `created_at` | TEXT | No | Fecha de creación |
+| `updated_at` | TEXT | No | Fecha de última actualización |
+
+**Restricciones:**
+
+- UNIQUE (`restaurant_id`, `number`): el número de mesa no se repite dentro de un restaurante.
+- `restaurant_id` es FK a `restaurants.id`.
+
+`occupied_at` delimita la **ocupación actual**: los pedidos de la mesa con `created_at >= occupied_at` son los de los comensales que la ocupan ahora.
+
+---
+
 ### `orders`
 
 Pedidos de los clientes.
@@ -190,7 +229,7 @@ Pedidos de los clientes.
 | --- | --- | --- | --- |
 | `id` | TEXT | No | UUID, clave primaria |
 | `restaurant_id` | TEXT | No | FK → `restaurants.id` |
-| `table_id` | TEXT | Sí | Identificador de mesa (opcional) |
+| `table_id` | TEXT | Sí | ID de la mesa (`tables.id`), opcional. No es FK: al borrar una mesa sus pedidos antiguos conservan el valor |
 | `client_id` | TEXT | Sí | ID del cliente (opcional) |
 | `created_at` | TEXT | No | Fecha de creación |
 
@@ -223,6 +262,8 @@ Líneas de pedido. Cada ítem es un plato con cantidad y estado.
 | Restaurant → Ingredients | 1:N | Un restaurante tiene muchos ingredientes |
 | Restaurant → Dishes | 1:N | Un restaurante tiene muchos platos |
 | Restaurant → Orders | 1:N | Un restaurante tiene muchos pedidos |
+| Restaurant → Tables | 1:N | Un restaurante tiene muchas mesas |
+| Table → Orders | 1:N (lógica) | Un pedido puede ir asociado a una mesa vía `orders.table_id` (sin FK) |
 | Dish ↔ Ingredient | N:M | Un plato usa varios ingredientes (via `dish_ingredients`) |
 | Order → OrderItems | 1:N | Un pedido tiene varios ítems |
 | Dish → OrderItems | 1:N | Un plato puede estar en varios ítems de pedido |
@@ -231,7 +272,7 @@ Líneas de pedido. Cada ítem es un plato con cantidad y estado.
 
 ## Notas Técnicas
 
-- **IDs**: Todos son UUID v4 generados con `crypto.randomUUID()`. Excepción: el script de seed usa los identificadores fijos `rest-1` y `rest-2` para los restaurantes de prueba.
+- **IDs**: Todos son UUID v4 generados con `crypto.randomUUID()`. Excepción: el script de seed usa los identificadores fijos `rest-1` y `rest-2` para los restaurantes de prueba. El seed crea 6 mesas en `rest-1` (la 4 `reservada` y la 5 `ocupada`, con el pedido de ejemplo) y 4 en `rest-2`; es idempotente gracias a la restricción UNIQUE (`restaurant_id`, `number`).
 - **Fechas**: Almacenadas como TEXT en formato ISO 8601 (`new Date().toISOString()`).
 - **Booleanos**: SQLite no tiene tipo BOOLEAN; se usa INTEGER (0 = false, 1 = true).
 - **Nomenclatura**: las columnas son `snake_case` y las propiedades TypeScript `camelCase`. La conversión se hace con alias en el propio SQL (`owner_first_name as ownerFirstName`).
