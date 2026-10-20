@@ -1,4 +1,4 @@
-import type { OrderRepository } from '@repositories/order.repository.js'
+import type { OrderRepository, TableOccupation } from '@repositories/order.repository.js'
 import type { Order } from '@models/order.model.js'
 
 export class MockOrderRepository implements OrderRepository {
@@ -24,5 +24,11 @@ export class MockOrderRepository implements OrderRepository {
 
     async findByClientId(clientId: string): Promise<Order[]> {
         return this.orders.filter(o => o.clientId === clientId)
+    }
+
+    async findByTablesSince(occupations: TableOccupation[]): Promise<Order[]> {
+        return this.orders
+            .filter(o => occupations.some(oc => o.tableId === oc.tableId && o.createdAt.toISOString() >= oc.since))
+            .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
     }
 }

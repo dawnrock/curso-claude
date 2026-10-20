@@ -32,6 +32,9 @@ import { Order, OrderItem } from '../../core/models/order.model'
               <lucide-icon name="utensils" [size]="24"></lucide-icon>
             }
             <span>{{ order()!.restaurantName || 'RestTek' }}</span>
+            @if (order()!.tableNumber) {
+              <span class="ticket-table">Mesa {{ order()!.tableNumber }}</span>
+            }
           </div>
           
           <div class="ticket-divider"></div>
@@ -96,6 +99,11 @@ import { Order, OrderItem } from '../../core/models/order.model'
       color: var(--green-light);
       font-size: 18px;
       font-weight: 700;
+    }
+    .ticket-table {
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
     }
     .ticket-logo {
       width: 24px;

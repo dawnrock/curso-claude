@@ -15,7 +15,8 @@ Terminología del dominio y conceptos técnicos utilizados en el proyecto Restte
 | **Dish** | Plato de la carta de un restaurante. Tiene nombre, descripción, precio, categoría y puede estar disponible o no. |
 | **Ingredient** | Ingrediente utilizado en los platos. Tiene nombre, unidad de medida y stock actual. Pertenece a un restaurante. |
 | **DishIngredient** | Relación entre un plato y un ingrediente, con la cantidad necesaria. |
-| **Order** | Pedido realizado por un cliente. Contiene ítems (platos) y está asociado a un restaurante. |
+| **Table** | Mesa de un restaurante. Tiene número (único en el restaurante), descripción opcional, capacidad (comensales) y estado. |
+| **Order** | Pedido realizado por un cliente. Contiene ítems (platos), está asociado a un restaurante y, opcionalmente, a una mesa. |
 | **OrderItem** | Línea de un pedido: un plato con cantidad, notas opcionales y estado. |
 
 Dos particularidades del modelo que conviene tener presentes:
@@ -28,7 +29,7 @@ Dos particularidades del modelo que conviene tener presentes:
 | Rol | Descripción | Acceso |
 | --- | --- | --- |
 | **admin** | Administrador del sistema. Gestiona restaurantes, empleados y configuración. | web-admin |
-| **manager** | Gerente de restaurante. Gestiona los platos de su restaurante. | web-admin, web-empleados (todas las vistas) |
+| **manager** | Gerente de restaurante. Gestiona los platos y las mesas de su restaurante. | web-admin, web-empleados (todas las vistas) |
 | **cocinero** | Cocinero del restaurante. Prepara los pedidos. | web-empleados (cocina) |
 | **camarero** | Camarero del restaurante. Atiende barra y salón. | web-empleados (barra, salón) |
 | **cliente** | Cliente final. Hace pedidos. | web-clientes |
@@ -43,6 +44,16 @@ El valor almacenado es `manager`; "gerente" es solo su traducción en la interfa
 | **preparando** | Ítem siendo preparado en cocina. | cocinero |
 | **listo** | Ítem preparado, listo para servir. | cocinero |
 | **entregado** | Ítem entregado al cliente. Desaparece de las vistas activas. | camarero |
+
+### Estados de Mesa
+
+| Estado | Descripción | Quién lo cambia |
+| --- | --- | --- |
+| **libre** | Mesa disponible. Es la única que ve el cliente al elegir mesa. | — (estado inicial); empleados a mano |
+| **ocupada** | Mesa con comensales. Se fija `occupiedAt`. | cliente al pulsar "continuar" (solo si estaba libre); empleados a mano |
+| **reservada** | Mesa apartada. No hay flujo de reservas: es solo un estado que ponen los empleados. | empleados a mano |
+
+La mesa **no se libera sola**: la pasan a `libre` los empleados cuando se van los comensales. Ocupar una mesa es atómico: si dos clientes la eligen a la vez, solo uno la consigue y el otro recibe `409`.
 
 ### Categorías de Platos
 
@@ -89,17 +100,17 @@ Las tres capas aplican al contexto `employee`:
 | **Application** | Casos de uso. Orquesta la lógica de negocio. |
 | **Infrastructure** | Implementaciones concretas: BD, HTTP, servicios externos. |
 
-En `restaurant`, `dish`, `ingredient` y `order` la separación equivalente es por carpetas: `models/`, `repositories/`, `services/`, `controllers/` y `routes/`.
+En `restaurant`, `dish`, `ingredient`, `order` y `table` la separación equivalente es por carpetas: `models/`, `repositories/`, `services/`, `controllers/` y `routes/`.
 
 ### Patrones
 
 | Patrón | Descripción | Ejemplo en Resttek |
 | --- | --- | --- |
-| **Entity** | Objeto con identidad única y comportamiento propio. | `Employee` (la única). `Restaurant`, `Dish`, `Ingredient` y `Order` son `interface` planas |
+| **Entity** | Objeto con identidad única y comportamiento propio. | `Employee` (la única). `Restaurant`, `Dish`, `Ingredient`, `Order` y `Table` son `interface` planas |
 | **Value Object** | Objeto inmutable definido por su valor. | `Email`, `Role` |
 | **Repository** | Abstracción de persistencia. | `IEmployeeRepository`, `RestaurantRepository` |
 | **Use Case** | Acción de negocio específica, una clase con `execute()`. | `LoginUseCase`, `CreateEmployeeUseCase`, `RegisterClientUseCase` |
-| **Service** | Equivalente al caso de uso fuera de `employee`: una clase con varios métodos. | `RestaurantService`, `DishService`, `OrderService` |
+| **Service** | Equivalente al caso de uso fuera de `employee`: una clase con varios métodos. | `RestaurantService`, `DishService`, `OrderService`, `TableService` |
 | **DTO** | Objeto para transferir datos entre capas. | `CreateRestaurantDTO`, `LoginDTO` |
 | **Factory Method** | Método estático para crear instancias con validación. | `Employee.create()` |
 | **Store** | Servicio Angular que guarda estado con signals. | `AuthStore`, `DishStore`, `CartStore` |
