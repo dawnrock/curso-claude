@@ -1,0 +1,103 @@
+<div class="page-header">
+  <h1>Mesas</h1>
+  <div class="filters">
+    <button class="filter-chip" [class.active]="filter() === 'todas'" (click)="setFilter('todas')">
+      Todas <span class="chip-count">{{ tableStore.tables().length }}</span>
+    </button>
+    @for (status of statuses; track status) {
+      <button
+        [class]="'filter-chip accent-' + status"
+        [class.active]="filter() === status"
+        (click)="setFilter(status)">
+        {{ status }} <span class="chip-count">{{ tableStore.countByStatus()[status] }}</span>
+      </button>
+    }
+  </div>
+</div>
+
+@if (tableStore.loading() && tableStore.tables().length === 0) {
+  <div class="spinner"></div>
+}
+
+@if (tableStore.error()) {
+  <div class="alert-error">{{ tableStore.error() }}</div>
+}
+
+@if (!tableStore.loading() || tableStore.tables().length > 0) {
+  @if (filteredTables().length === 0) {
+    <div class="empty-state">
+      <p>{{ tableStore.tables().length === 0 ? 'Este restaurante no tiene mesas' : 'No hay mesas con este estado' }}</p>
+    </div>
+  } @else {
+    <div class="tables-grid">
+      @for (table of filteredTables(); track table.id) {
+        <div [class]="'table-card accent-' + table.status">
+          <div class="table-header">
+            <div class="table-title">
+              <span class="table-number">Mesa {{ table.number }}</span>
+              @if (table.description) {
+                <span class="table-description">{{ table.description }}</span>
+              }
+            </div>
+            <span class="status-badge">{{ table.status }}</span>
+          </div>
+
+          <div class="table-meta">
+            <span class="meta-item">
+              <lucide-icon name="users" [size]="14"></lucide-icon>
+              {{ table.capacity }} personas
+            </span>
+            @if (table.occupiedAt) {
+              <span class="meta-item">
+                <lucide-icon name="clock" [size]="14"></lucide-icon>
+                Ocupada desde {{ table.occupiedAt | date:'HH:mm' }}
+              </span>
+            }
+          </div>
+
+          <div class="status-actions">
+            @for (status of statuses; track status) {
+              <button
+                [class]="'status-btn accent-' + status"
+                [class.current]="table.status === status"
+                [disabled]="table.status === status || tableStore.updatingId() === table.id"
+                (click)="changeStatus(table, status)">
+                {{ status }}
+              </button>
+            }
+          </div>
+
+          @if (table.status === 'ocupada') {
+            <div class="table-orders">
+              @if (table.orders.length === 0) {
+                <p class="no-orders">Sin pedidos todavía</p>
+              }
+              @for (order of table.orders; track order.id) {
+                <div class="order">
+                  <div class="order-header">
+                    <span class="order-id">Pedido #{{ order.id.substring(0, 8) }}</span>
+                    <span class="order-meta">
+                      {{ order.createdAt | date:'HH:mm' }} · {{ deliveredCount(order) }}/{{ order.items.length }} entregados
+                    </span>
+                  </div>
+                  @for (item of order.items; track item.id) {
+                    <div class="order-item">
+                      <div class="item-info">
+                        <span class="item-quantity">{{ item.quantity }}x</span>
+                        <span class="item-name">{{ item.dishName || 'Producto' }}</span>
+                        @if (item.notes) {
+                          <span class="item-notes">{{ item.notes }}</span>
+                        }
+                      </div>
+                      <span [class]="getStatusClass(item.status)">{{ item.status }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+}
